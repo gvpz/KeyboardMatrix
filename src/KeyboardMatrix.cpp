@@ -1,7 +1,9 @@
 #include "KeyboardMatrix.h"
 
 KeyboardMatrix::KeyboardMatrix(){
-
+    // Created empty constructor for debugging.
+    // Normally, initializeMatrix wouldn't exist but nothing
+    // inside the normal constructor was getting called.
 }
 
 // KeyboardMatrix::KeyboardMatrix(char *customKeymap, PinMap *row, PinMap *col, byte numRows, byte numCols)
@@ -9,12 +11,11 @@ KeyboardMatrix::KeyboardMatrix(){
 //     begin(customKeymap);
 //     setDebounceTime(10);
 //     setHoldTime(500);
-
+//
 //     setRowPinsToInputPullup();
 // }
 
 void KeyboardMatrix::initializeMatrix(char *customKeymap, PinMap *row, PinMap *col, byte numRows, byte numCols) {
-    // Initialize member variables in the method body
     startTime = 0;
     rowPins = row;
     columnPins = col;
@@ -89,34 +90,19 @@ bool KeyboardMatrix::getKeys() {
     return keyActivity;
 }
 
-// void KeyboardMatrix::scanKeys() {
-//     //Serial.println("ScanKeys");
-//     setRowPinsToInputPullup();
-
-//     for(byte c = 0; c < matrixSize.columns; c++) {
-//         columnPins[c].port->PIO_OER = columnPins[c].pin;
-//         columnPins[c].port->PIO_CODR = columnPins[c].pin;
-
-//         for(byte r = 0; r < matrixSize.rows; r++) {
-//             bitWrite(bitMap[r], c, rowPins[r].port->PIO_PDSR & 1 << r);
-//         }
-//     }
-//     resetColumnPins();
-// }
-
 void KeyboardMatrix::scanKeys() {
-    setRowPinsToInputPullup();  // Enable pull-ups for rows
+    setRowPinsToInputPullup();
 
     for(byte c = 0; c < matrixSize.columns; c++) {
-        columnPins[c].port->PIO_OER = columnPins[c].pin;  // Set column pin as output
-        columnPins[c].port->PIO_CODR = columnPins[c].pin;  // Drive column pin low
+        columnPins[c].port->PIO_OER = columnPins[c].pin;
+        columnPins[c].port->PIO_CODR = columnPins[c].pin;
 
         for(byte r = 0; r < matrixSize.rows; r++) {
-            bool keyState = !(rowPins[r].port->PIO_PDSR & rowPins[r].pin);  // Check row state
+            bool keyState = !(rowPins[r].port->PIO_PDSR & rowPins[r].pin);
             bitWrite(bitMap[r], c, keyState);
         }
 
-        columnPins[c].port->PIO_SODR = columnPins[c].pin;  // Set column pin high
+        columnPins[c].port->PIO_SODR = columnPins[c].pin;
     }
     resetColumnPins();
 }
@@ -150,7 +136,7 @@ bool KeyboardMatrix::updateList() {
                         key[i].keyCode = keyCode;
                         key[i].keyState = IDLE;
                         nextKeyState(i, button);
-                        Serial.println("btton uPDATE LIST");
+                        Serial.println("button update list");
                         break;
                     }
                 }
