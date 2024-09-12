@@ -11,4 +11,4 @@ All wires other than ground have 1N4148 Diodes<br/><br/>
 23-30: Cathode towards PCB<br/>
 31-39: Cathode towards Arduino<br/><br/>
 
-component_pio.h is included because when importing this library, my Arduino editor was unable to find it inside it's own files
+component_pio.h is included because when importing this library, my Arduino IDE was unable to find it inside its own files
