@@ -108,7 +108,7 @@ void KeyboardMatrix::scanKeys() {
 }
 
 bool KeyboardMatrix::updateList() {
-    Serial.println("Update List");
+    //Serial.println("Update List");
     bool activity = false;
 
     for(auto & i : key) {
@@ -144,8 +144,11 @@ bool KeyboardMatrix::updateList() {
         }
     }
     for (auto & i : key) {
-        if (i.stateChanged) activity = true;
-        Serial.println("ACTIVITY");
+        if (i.stateChanged) 
+        {
+            activity = true;
+            Serial.println("ACTIVITY");
+        }
     }
 
     return activity;
