@@ -61,7 +61,7 @@ public:
     int findInList(char keyChar);
     int findInList(int keyCode);
 
-    void testPins();
+    void test(PinMap row, PinMap col);
 
 private:
     ulong startTime;

@@ -1,9 +1,7 @@
 #include "KeyboardMatrix.h"
 
 KeyboardMatrix::KeyboardMatrix(){
-    // Created empty constructor for debugging.
-    // Normally, initializeMatrix wouldn't exist but nothing
-    // inside the normal constructor was getting called.
+
 }
 
 // KeyboardMatrix::KeyboardMatrix(char *customKeymap, PinMap *row, PinMap *col, byte numRows, byte numCols)
@@ -11,7 +9,7 @@ KeyboardMatrix::KeyboardMatrix(){
 //     begin(customKeymap);
 //     setDebounceTime(10);
 //     setHoldTime(500);
-//
+
 //     setRowPinsToInputPullup();
 // }
 
@@ -58,8 +56,8 @@ void KeyboardMatrix::setRowPinsToInputPullup() {
 void KeyboardMatrix::resetColumnPins() {
     //Serial.println("Reset Col");
     for(byte c = 0; c < matrixSize.columns; c++) {
-        columnPins[c].port->PIO_SODR = columnPins[c].pin;
-        columnPins[c].port->PIO_ODR = columnPins[c].pin;
+        columnPins[c].port->PIO_SODR = columnPins[c].pin; //Set Output Data Registry (Set to output high/default)
+        columnPins[c].port->PIO_ODR = columnPins[c].pin; //Output Disable Register (Set to input)
     }
 }
 
@@ -90,19 +88,34 @@ bool KeyboardMatrix::getKeys() {
     return keyActivity;
 }
 
+// void KeyboardMatrix::scanKeys() {
+//     //Serial.println("ScanKeys");
+//     setRowPinsToInputPullup();
+
+//     for(byte c = 0; c < matrixSize.columns; c++) {
+//         columnPins[c].port->PIO_OER = columnPins[c].pin;
+//         columnPins[c].port->PIO_CODR = columnPins[c].pin;
+
+//         for(byte r = 0; r < matrixSize.rows; r++) {
+//             bitWrite(bitMap[r], c, rowPins[r].port->PIO_PDSR & 1 << r);
+//         }
+//     }
+//     resetColumnPins();
+// }
+
 void KeyboardMatrix::scanKeys() {
-    setRowPinsToInputPullup();
+    setRowPinsToInputPullup(); 
 
     for(byte c = 0; c < matrixSize.columns; c++) {
-        columnPins[c].port->PIO_OER = columnPins[c].pin;
-        columnPins[c].port->PIO_CODR = columnPins[c].pin;
+        columnPins[c].port->PIO_OER = columnPins[c].pin; //Output Enable Registry (Set to output)
+        columnPins[c].port->PIO_CODR = columnPins[c].pin; //Clear Output Data Registry (Set to low)
 
         for(byte r = 0; r < matrixSize.rows; r++) {
-            bool keyState = !(rowPins[r].port->PIO_PDSR & rowPins[r].pin);
-            bitWrite(bitMap[r], c, keyState);
+            bool keyState = !(rowPins[r].port->PIO_PDSR & rowPins[r].pin); 
+            bitWrite(bitMap[r], c, keyState); //Writes keystate to the bitmap
         }
 
-        columnPins[c].port->PIO_SODR = columnPins[c].pin;
+        columnPins[c].port->PIO_SODR = columnPins[c].pin; //Set Output Data Registry (Set to output high/default)
     }
     resetColumnPins();
 }
@@ -136,7 +149,7 @@ bool KeyboardMatrix::updateList() {
                         key[i].keyCode = keyCode;
                         key[i].keyState = IDLE;
                         nextKeyState(i, button);
-                        Serial.println("button update list");
+                        Serial.println("btton uPDATE LIST");
                         break;
                     }
                 }
@@ -230,14 +243,13 @@ void KeyboardMatrix::transitionState(byte n, KeyState nextState) {
     key[n].stateChanged = true;
 }
 
-void KeyboardMatrix::testPins(){
-    for(int r = 0; r < matrixSize.rows; r++){
-        Serial.print(rowPins[r].pin);
-        Serial.print(" ");
-    }
-    Serial.println();
-        for(int c = 0; c < matrixSize.columns; c++){
-        Serial.print(columnPins[c].pin);
-        Serial.print(" ");
+void KeyboardMatrix::test(PinMap row, PinMap col){
+    col.port->PIO_OER = col.pin;
+    col.port->PIO_CODR = col.pin;
+
+    row.port->PIO_PUER = row.pin;
+
+    if(row.port->PDSR & row.pin){
+        Serial.println("test: READ OUT TRUE");
     }
 }
