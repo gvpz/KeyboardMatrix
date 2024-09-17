@@ -69,9 +69,9 @@ void KeyboardMatrix::begin(char* customKeymap) {
 char KeyboardMatrix::getKey() {
     //Serial.println("GetKey");
     if(getKeys()) {
-        Serial.println("getKeysPassed");
+        //Serial.println("getKeysPassed");
         if(key[0].stateChanged && key[0].keyState == PRESSED) {
-            Serial.println("statechanged and pressed");
+            //Serial.println("statechanged and pressed");
             return key[0].keyChar;
         }
     }
@@ -154,14 +154,13 @@ bool KeyboardMatrix::updateList() {
                 //Serial.println("Next key state");
             }
             if(idx == -1 && button) {
-                Serial.println("updateList button");
+                //Serial.println("updateList button");
                 for (byte i = 0; i < LIST_MAX; i++) {
                     if (key[i].keyChar == NO_KEY) {
                         key[i].keyChar = keyChar;
                         key[i].keyCode = keyCode;
                         key[i].keyState = IDLE;
                         nextKeyState(i, button);
-                        Serial.println("btton uPDATE LIST");
                         break;
                     }
                 }
@@ -172,7 +171,7 @@ bool KeyboardMatrix::updateList() {
         if (i.stateChanged) 
         {
             activity = true;
-            Serial.println("ACTIVITY");
+            //Serial.println("ACTIVITY");
         }
     }
 
@@ -189,14 +188,14 @@ void KeyboardMatrix::nextKeyState(byte n, boolean button) {
 
     switch(key[n].keyState) {
         case IDLE:
-            Serial.println("IDLE");
+            //Serial.println("IDLE");
             if(button == CLOSED) {
                 transitionState(n, PRESSED);
                 holdTimer = millis();
             }
             break;
         case PRESSED:
-            Serial.println("PRESSED");
+            //Serial.println("PRESSED");
             if((millis() - holdTimer) > holdTime) {
                 transitionState(n, HOLD);
             }
@@ -205,17 +204,17 @@ void KeyboardMatrix::nextKeyState(byte n, boolean button) {
             }
             break;
         case HOLD:
-            Serial.println("HOLD");
+            //Serial.println("HOLD");
             if(button == OPEN) {
                 transitionState(n, RELEASED);
             }
             break;
         case RELEASED:
-            Serial.println("RELEASED");
+            //Serial.println("RELEASED");
             transitionState(n, IDLE);
             break;
         default:
-            Serial.println("No Key State");
+            //Serial.println("No Key State");
             break;
     }
 }
