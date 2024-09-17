@@ -1,16 +1,37 @@
 #include <KeyboardMatrix.h>
 
+//rows
+#define port23 PIO_PA14
+#define port24 PIO_PA15
+#define port25 PIO_PD0
+#define port26 PIO_PD1
+#define port27 PIO_PD2
+#define port28 PIO_PD3
+#define port29 PIO_PD6
+#define port30 PIO_PD9
+
+//coloumns
+#define port31 PIO_PA7
+#define port32 PIO_PD10
+#define port33 PIO_PC1
+#define port34 PIO_PC2
+#define port35 PIO_PC3
+#define port36 PIO_PC4
+#define port37 PIO_PC5
+#define port38 PIO_PC6
+#define port39 PIO_PC7
+
 const byte rows = 8;
 const byte cols = 9;
 
 PinMap rowPins[rows] = {
-  {PIOA, PIO_PA14}, {PIOA, PIO_PA15}, {PIOD, PIO_PD0}, {PIOD, PIO_PD1}, 
-  {PIOD, PIO_PD2}, {PIOD, PIO_PD3}, {PIOD, PIO_PD6}, {PIOD, (1u << 9)}
-  };
+  {PIOA, port23}, {PIOA, port24}, {PIOD, port25}, {PIOD, port26}, 
+  {PIOD, port27}, {PIOD, port28}, {PIOD, port29}, {PIOD, port30}
+};
 
 PinMap colPins[cols] = {
-  {PIOA, PIO_PA7}, {PIOD, PIO_PD10}, {PIOC, PIO_PC1}, {PIOC, PIO_PC2}, {PIOC, PIO_PC3},
-  {PIOC, PIO_PC4}, {PIOC, (1u << 5)}, {PIOC, PIO_PC6}, {PIOC, PIO_PC7}
+  {PIOA, port31}, {PIOD, port32}, {PIOC, port33}, {PIOC, port34}, {PIOC, port35},
+  {PIOC, port36}, {PIOC, port37}, {PIOC, port38}, {PIOC, port39}
 };
 
 //  ~ = blank
@@ -19,36 +40,38 @@ PinMap colPins[cols] = {
 //  < = backspace
 //  * = capslock
 char keymap[rows][cols] = {
-  {'MENU','RIGHT','INSPECT','UP','TAB','~','*','^','~',},
-  {'m','b','g','c','d','.','a','<','LEFT',},
-  {',','n','v','f','x','/','s','WORDOUT','DOWN',},
-  {'~','~','~','~','~','~','~','_','~',},
-  {'o','u','h','t','e','k','z','<','1/2',},
-  {'0','j','7','6','3','l','2','CANCEL',';',},
-  {'-','9','8','5','4','=','1','Switch(TW/WP)','FILE',},
-  {'p','i','y','r','w','+','q','ENTER',']',}
+  {'MENU','RIGHT','INSPECT','UP','TAB','~','*','^','~'},
+  {'m','b','g','c','d','.','a','<','LEFT'},
+  {',','n','v','f','x','/','s','WORDOUT','DOWN'},
+  {'~','~','~','~','~','~','~','_','~'},
+  {'o','u','h','t','e','k','z','<','1/2'},
+  {'0','j','7','6','3','l','2','CANCEL',';'},
+  {'-','9','8','5','4','=','1','Switch(TW/WP)','FILE'},
+  {'p','i','y','r','w','+','q','ENTER',']'}
 };
 
-//Creates object; calls constructor
-KeyboardMatrix keyboard(makeKeymap(keymap), rowPins, colPins, rows, cols);
-
-
+KeyboardMatrix keyboardMatrix;
 
 void setup() {
   Serial.begin(9600);
+  Serial.println("Setup Start");
 
-  keyboard.enableClock(PIOA);
-  keyboard.enableClock(PIOC);
-  keyboard.enableClock(PIOD);
-  keyboard.setDebounceTime(1);
+  keyboardMatrix.initializeMatrix(makeKeymap(keymap), rowPins, colPins, rows, cols);
+
+  keyboardMatrix.enableClock(PIOA);
+  keyboardMatrix.enableClock(PIOC);
+  keyboardMatrix.enableClock(PIOD);
+
+  keyboardMatrix.setDebounceTime(1);
+  Serial.println("Debounce Time Set");
+
+  Serial.println("Setup Complete");
+
 }
 
 void loop() {
-  char key = keyboard.getKey();
+  char key = keyboardMatrix.getKey();
 
-  if(key){
-    Serial.print("KEY DETECTED: ");
-    Serial.println(key);
-  }
+  if (key == NO_KEY) return;
+  Serial.println(key);
 }
-
