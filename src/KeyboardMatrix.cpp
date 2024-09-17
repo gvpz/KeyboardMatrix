@@ -68,9 +68,12 @@ void KeyboardMatrix::begin(char* customKeymap) {
 
 char KeyboardMatrix::getKey() {
     //Serial.println("GetKey");
-    if(getKeys() && key[0].stateChanged && key[0].keyState == PRESSED) {
-        Serial.println("getKey Passed");
-        return key[0].keyChar;
+    if(getKeys()) {
+        Serial.println("getKeysPassed");
+        if(key[0].stateChanged && key[0].keyState == PRESSED) {
+            Serial.println("statechanged and pressed");
+            return key[0].keyChar;
+        }
     }
     return NO_KEY;
 }
@@ -111,7 +114,7 @@ void KeyboardMatrix::scanKeys() {
         columnPins[c].port->PIO_CODR = columnPins[c].pin; //Clear Output Data Registry (Set to low)
 
         for(byte r = 0; r < matrixSize.rows; r++) {
-            bool keyState = !(rowPins[r].port->PIO_PDSR & rowPins[r].pin); 
+            bool keyState = !(rowPins[r].port->PIO_PDSR & rowPins[r].pin);
             bitWrite(bitMap[r], c, keyState); //Writes keystate to the bitmap
         }
 
@@ -139,10 +142,19 @@ bool KeyboardMatrix::updateList() {
             int keyCode = r * matrixSize.columns + c;
             int idx = findInList(keyCode);
 
-            if(idx == -1) {
+            // Serial.print(keyCode);
+            // Serial.print(" ");
+            // Serial.print(keyChar);
+            // Serial.print(" ");
+            // Serial.println(button);
+
+
+            if(idx > -1) {
                 nextKeyState(idx, button);
+                //Serial.println("Next key state");
             }
-            else if(button) {
+            if(idx == -1 && button) {
+                Serial.println("updateList button");
                 for (byte i = 0; i < LIST_MAX; i++) {
                     if (key[i].keyChar == NO_KEY) {
                         key[i].keyChar = keyChar;
@@ -168,17 +180,23 @@ bool KeyboardMatrix::updateList() {
 }
 
 void KeyboardMatrix::nextKeyState(byte n, boolean button) {
-    //Serial.println("Next key state");
+    // Serial.print("Next key state ");
+    // Serial.print(n);
+    // Serial.print(" ");
+    // Serial.println(button);
+
     key[n].stateChanged = false;
 
     switch(key[n].keyState) {
         case IDLE:
+            Serial.println("IDLE");
             if(button == CLOSED) {
                 transitionState(n, PRESSED);
                 holdTimer = millis();
             }
             break;
         case PRESSED:
+            Serial.println("PRESSED");
             if((millis() - holdTimer) > holdTime) {
                 transitionState(n, HOLD);
             }
@@ -187,12 +205,17 @@ void KeyboardMatrix::nextKeyState(byte n, boolean button) {
             }
             break;
         case HOLD:
+            Serial.println("HOLD");
             if(button == OPEN) {
                 transitionState(n, RELEASED);
             }
             break;
         case RELEASED:
+            Serial.println("RELEASED");
             transitionState(n, IDLE);
+            break;
+        default:
+            Serial.println("No Key State");
             break;
     }
 }
@@ -249,7 +272,10 @@ void KeyboardMatrix::test(PinMap row, PinMap col){
 
     row.port->PIO_PUER = row.pin;
 
-    if(row.port->PDSR & row.pin){
+    if (!(row.port->PIO_PDSR & row.pin)) {
         Serial.println("test: READ OUT TRUE");
     }
+
+    col.port->PIO_SODR = col.pin;
+    col.port->PIO_ODR = col.pin;
 }
